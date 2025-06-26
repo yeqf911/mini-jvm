@@ -1,0 +1,45 @@
+# .clang-format
+---
+Language:            Cpp                     # 作用于 C++ 源码
+BasedOnStyle:        LLVM                    # 先继承 LLVM 的整体规则
+IndentWidth:         4                       # 4 空格缩进
+UseTab:              Never                   # 不使用制表符
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   true
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  AfterExternBlock: false
+  BeforeCatch:     false
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: false
+BreakBeforeBraces:   Custom                  # K&R：左大括号与语句同行
+AllowShortIfStatementsOnASingleLine: false   # if/else 不写成单行
+AllowShortBlocksOnASingleLine: Never
+ColumnLimit:         100                     # 建议最大列宽 100
+PointerAlignment:    Left                    # 星号紧靠类型 “int *p”
+SpaceBeforeParens:   ControlStatements       # 控制语句后保留空格，如 if (...)
+SortIncludes:        false                   # 保持头文件包含顺序
+IncludeBlocks:       Preserve                # 不合并或重新排序 include 分组
+Cpp11BracedListStyle: true                   # 使用统一初始化时正常格式化
+BreakConstructorInitializers: BeforeComma    # 构造函数初始化列表在逗号前换行
+
+# ---------- 标识符命名规则 ----------
+IdentifierNaming:                          # 以下字段要求 clang-format ≥ 12
+  TypeCase:         UpperCamelCase         # 类型 / 枚举 / struct 使用 PascalCase
+  FunctionCase:     Snake_Case             # 函数名使用 snake_case
+  VariableCase:     Snake_Case             # 普通变量使用 snake_case
+  ConstantCase:     Snake_Case             # const / constexpr 变量也 snake_case
+  MacroCase:        UPPER_CASE             # 宏常量保持全大写
+---
+
