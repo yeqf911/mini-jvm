@@ -42,23 +42,6 @@ inline void die(const std::string& msg)
     throw std::runtime_error(msg);
 }
 
-using Key = std::tuple<std::string, std::string, std::string>;
-
-// 为 Key 类型自定义 hash
-struct TupleHash {
-    std::size_t operator()(const Key& key) const noexcept
-    {
-        constexpr std::hash<std::string> hasher;
-        std::size_t seed = hasher(std::get<0>(key));
-        auto combine = [](std::size_t& s, const std::size_t v) {
-            s ^= v + 0x9e3779b9 + (s << 6) + (s >> 2);
-        };
-        combine(seed, hasher(std::get<1>(key)));
-        combine(seed, hasher(std::get<2>(key)));
-        return seed;
-    }
-};
-
 }
 
 #endif //UTILS_H

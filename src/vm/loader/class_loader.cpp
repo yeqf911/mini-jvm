@@ -31,8 +31,8 @@ rt::JavaClass* ClassLoader::load_class(const std::string& class_name)
     // define & link
     auto* clazz = define_class(cf);
     link(clazz);
-
-    cache.emplace(class_name, std::unique_ptr<rt::JavaClass>(clazz));
+    std::unique_ptr<rt::JavaClass> tmp(clazz);
+    cache.emplace(class_name, std::move(tmp));
     return clazz;
 }
 
