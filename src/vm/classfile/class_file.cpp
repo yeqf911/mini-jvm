@@ -2,12 +2,11 @@
 // Created by 峰峰的🍎 on 2025/6/25.
 //
 #include <iostream>
-
 #include "class_file.h"
-
-#include <map>
-
 #include "vm/common/utils.h"
+
+#include <cstring>
+
 using namespace jvm::util;
 
 namespace jvm::classfile {

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <variant>
 
 #include "vm/common/types.h"
 /**

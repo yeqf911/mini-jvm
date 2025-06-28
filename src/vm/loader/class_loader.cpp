@@ -10,6 +10,8 @@
 #include "vm/runtime/acc.h"
 #include "vm/runtime/java_object.h"
 
+#include <cstring>
+
 namespace jvm::loader {
 
 /* --------------------------------------------------------

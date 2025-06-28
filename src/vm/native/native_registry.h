@@ -5,6 +5,7 @@
 #ifndef NATIVE_REGISTRY_H
 #define NATIVE_REGISTRY_H
 #include <functional>
+#include <string>
 
 namespace jvm::rt {
 class StackFrame;

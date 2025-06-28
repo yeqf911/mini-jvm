@@ -13,6 +13,8 @@
 #include "jvm_opcode.h"
 #include "vm/runtime/java_object.h"
 
+#include <algorithm>
+
 using namespace jvm;
 
 namespace jvm::interp {
@@ -236,14 +238,14 @@ void Interpreter::exec_loop()
             std::string m_desc = cp.get<CpUtf8>(nt.desc_index).str;
 
             std::vector<rt::Slot> args;
-            for (int i = static_cast<int>(m_desc.find(')')) - 1; i >= 0; --i) {
+            for (int i = static_cast<int>(m_desc.find(')')) - 1; i >= 1; --i) {
                 if (m_desc[i] == 'I') {
                     args.push_back(frame.stack.back());
                     frame.stack.pop_back();
                 } else if (m_desc[i] == 'L') {
                     args.push_back(frame.stack.back());
                     frame.stack.pop_back();
-                    while (m_desc[i] != ';' && i >=0) {
+                    while (i>=0 && m_desc[i] != ';') {
                         --i;
                     }
                 } else {}
