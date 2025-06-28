@@ -27,7 +27,7 @@ public:
 private:
     std::string classpath;                                                 // 搜索路径
     std::unordered_map<std::string, std::unique_ptr<rt::JavaClass>> cache; // 加载的类的缓存
-    rt::JavaClass* define_class(const classfile::ClassFile& cf);           // 创建 JavaClass 对象
+    rt::JavaClass* define_class(std::unique_ptr<classfile::ClassFile> cf);           // 创建 JavaClass 对象
     // std::string path_of(const std::string& class_name) const;             // 转磁盘路径
     void link(rt::JavaClass*);                                             // prepare 阶段
 };

@@ -25,7 +25,7 @@ struct ClassFile {
 };
 
 std::ifstream get_class_file_stream(const std::string& classpath, const std::string& class_name);
-ClassFile parse_class_file(std::ifstream in);
+ClassFile parse_class_file(std::ifstream&& in);
 void print_summery(const ClassFile& cf);
 
 }

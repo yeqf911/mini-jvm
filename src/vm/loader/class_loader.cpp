@@ -4,6 +4,8 @@
 
 #include "class_loader.h"
 
+#include <iostream>
+
 #include "vm/common/utils.h"
 #include "vm/runtime/acc.h"
 #include "vm/runtime/java_object.h"
@@ -27,19 +29,20 @@ rt::JavaClass* ClassLoader::load_class(const std::string& class_name)
 
     // 读取磁盘
     std::ifstream in = classfile::get_class_file_stream(classpath, class_name);
-    const auto cf = classfile::parse_class_file(std::move(in));
+    classfile::ClassFile cf = classfile::parse_class_file(std::move(in));
     // define & link
-    auto* clazz = define_class(cf);
+    rt::JavaClass* clazz = define_class(std::make_unique<classfile::ClassFile>(std::move(cf)));
     link(clazz);
     std::unique_ptr<rt::JavaClass> tmp(clazz);
     cache.emplace(class_name, std::move(tmp));
+    // std::cout << "cache class: " << cache.size() << " loaded" << std::endl;
     return clazz;
 }
 
 /* --------------------------------------------------------
  *  defineClass：把 ClassFile 转换成 JavaClass（运行时结构）
  * ------------------------------------------------------*/
-rt::JavaClass* ClassLoader::define_class(const classfile::ClassFile& cf)
+rt::JavaClass* ClassLoader::define_class(std::unique_ptr<classfile::ClassFile> cff)
 {
     using rt::JavaClass;
     using rt::Slot;
@@ -47,15 +50,16 @@ rt::JavaClass* ClassLoader::define_class(const classfile::ClassFile& cf)
 
     auto* clazz = new JavaClass;
     // 解析类名
-    clazz->name = cf.cp.get<classfile::CpUtf8>(
-        cf.cp.get<classfile::CpClass>(cf.this_class).name_index).str;
-    clazz->cf = &cf;
+    clazz->cf = std::move(cff);
+    auto cf = clazz->cf.get();
+    clazz->name = cf->cp.get<classfile::CpUtf8>(
+        cf->cp.get<classfile::CpClass>(cf->this_class).name_index).str;
 
     u16 next_inst_slot = 0;   // 下一个实例字段槽号
     u16 next_static_slot = 0; // 下一个静态字段槽号
 
     // 收集字段 （包含普通成员和静态成员）
-    for (auto& f : cf.fields) {
+    for (auto& f : cf->fields) {
         bool is_static = (f.access_flags & Acc::ACC_STATIC); // 检查第 15 位是否为 1
         auto& rt_field = clazz->fields.emplace_back();       // 直接在 vector 末尾构造一个对象，并返回引用
         rt_field.acc = f.access_flags;
@@ -68,14 +72,14 @@ rt::JavaClass* ClassLoader::define_class(const classfile::ClassFile& cf)
     clazz->statics.resize(next_static_slot); // 分配静态变量槽，构造 n 个默认元素
 
     // 收集方法
-    for (auto& m : cf.methods) {
+    for (auto& m : cf->methods) {
         const classfile::CodeAttr* code = nullptr;
         for (auto& attr : m.attributes) {
             if (std::holds_alternative<classfile::CodeAttr>(attr)) {
                 code = &std::get<classfile::CodeAttr>(attr);
             }
         }
-        clazz->methods.push_back({m.access_flags, m.name_index, m.name_index, code});
+        clazz->methods.push_back({m.access_flags, m.name_index, m.desc_index, code});
     }
 
     return clazz;
@@ -123,26 +127,26 @@ void ClassLoader::link(rt::JavaClass* clazz)
                 case CpTag::Integer: {
                     const auto v = cp.get<CpInt>(value_index).v;
                     // 设置静态变量槽位的值
-                    clazz->statics[slot] = rt::to<i32>(v);
+                    clazz->statics[slot] = rt::static_to<i32>(v);
                     break;
                 }
                 case CpTag::Long: {
                     const auto v = cp.get<CpLong>(value_index).v;
-                    clazz->statics[slot] = rt::to<i64>(v);
+                    clazz->statics[slot] = rt::static_to<i64>(v);
                     break;
                 }
                 case CpTag::Float: { // float 和 double 用位模式 copy 保证精度不丢失
                     const auto v = cp.get<CpFloat>(value_index).v;
                     u32 bits;
                     std::memcpy(&bits, &v, sizeof(bits));
-                    clazz->statics[slot] = rt::to<u32>(bits);
+                    clazz->statics[slot] = rt::static_to<u32>(bits);
                     break;
                 }
                 case CpTag::Double: {
                     const auto v = cp.get<CpDouble>(value_index).v;
                     u64 bits;
                     std::memcpy(&bits, &v, sizeof(bits));
-                    clazz->statics[slot] = rt::to<u64>(bits);
+                    clazz->statics[slot] = rt::static_to<u64>(bits);
                     break;
                 }
                 default:

@@ -14,7 +14,9 @@ using Slot = u64;
 
 template <typename T> T as(Slot v) { return static_cast<T>(v); }
 
-template <typename T> Slot to(T v) { return static_cast<Slot>(v); }
+template <typename T> Slot static_to(T v) { return static_cast<Slot>(v); }
+
+template <typename T> Slot reinterpret_to(T v) { return reinterpret_cast<Slot>(v); }
 
 }
 

@@ -26,7 +26,7 @@ namespace jvm::rt {
 struct JavaClass {
     std::string name;      // java/lang/String
     JavaClass* super{};    // 父类
-    const classfile::ClassFile* cf{}; // 源 ClassFile
+    std::unique_ptr<classfile::ClassFile> cf; // 源 ClassFile
 
     // 静态字段槽
     std::vector<Slot> statics; // 大小为 static 字段槽数

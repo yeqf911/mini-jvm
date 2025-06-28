@@ -152,10 +152,8 @@ std::ifstream get_class_file_stream(const std::string& classpath, const std::str
     return in;
 }
 
-ClassFile parse_class_file(std::ifstream in)
+ClassFile parse_class_file(std::ifstream&& in)
 {
-    // std::ifstream in(path, std::ios::binary);
-
     u32 r = read_dword(in);
     if (r != 0xCAFEBABE)
         die("not a class file");
@@ -201,7 +199,7 @@ void print_summery(const ClassFile& cf)
     auto utf8 = [&](u16 i) { return cp.get<CpUtf8>(i).str; };
     auto cls_nm = [&](u16 i) { return utf8(cp.get<CpClass>(i).name_index); };
 
-    std::cout << "\n== Class Summary ==\n";
+    std::cout << "\n======== Class Summary ========\n";
     std::cout << "Version  : " << cf.major << '.' << cf.minor << '\n';
     std::cout << "This     : " << cls_nm(cf.this_class) << '\n';
     std::cout << "Super    : " << cls_nm(cf.super_class) << '\n';
@@ -251,5 +249,6 @@ void print_summery(const ClassFile& cf)
                 << "<Code len=" << c.code.size() << ">]\n";
         }
     }
+    std::cout << "======== Class Summary ========\n\n";
 }
 }
